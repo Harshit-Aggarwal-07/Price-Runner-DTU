@@ -29,3 +29,11 @@ Thumbs.db
 # Test artifacts
 test-results/
 playwright-report/
+
+# Internal working docs & prompts
+architecture.md
+architecture_analysis.md
+context.md
+llm2_handoff_prompt.md
+llm3_handoff_prompt.md
+prd.md
