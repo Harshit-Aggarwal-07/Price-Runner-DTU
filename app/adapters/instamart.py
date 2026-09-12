@@ -174,8 +174,11 @@ class InstamartAdapter(PlatformPort):
                             image_url = f"https://instamart-media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,h_600/{image_ids[0]}"
 
                         spin_id = v.get("spinId") or v.get("skuId") or pid
-                        query_str = f"{name} {raw_weight}" if raw_weight and raw_weight.lower() not in name.lower() else name
-                        product_url = f"{self.base_url}/instamart/search?custom_back=true&query={urllib.parse.quote_plus(query_str)}"
+                        # Use just product name for search URL — cleaner deep link
+                        product_url = f"{self.base_url}/instamart/search?custom_back=true&query={urllib.parse.quote_plus(name)}"
+
+                        # Check variation-level stock (overrides item-level)
+                        var_in_stock = bool(v.get("inStock", in_stock))
 
                         # Extract rating & review count
                         r_dict = v.get("rating") or it.get("rating")
@@ -202,7 +205,7 @@ class InstamartAdapter(PlatformPort):
                                 mrp=mrp,
                                 image_url=image_url,
                                 product_url=product_url,
-                                in_stock=in_stock,
+                                in_stock=var_in_stock,
                                 rating=rating,
                                 rating_count=rating_count,
                                 raw_weight_text=raw_weight,
