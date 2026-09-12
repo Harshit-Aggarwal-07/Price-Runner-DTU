@@ -806,13 +806,32 @@
                 ${product.mrp && product.mrp > product.price ? `<span>MRP ₹${product.mrp.toFixed(0)}</span>` : ''}
                 ${unitHtml}
             </div>
-            ${product.product_url ? `
-                <a href="${product.product_url}" target="_blank" rel="noopener noreferrer" class="store-row__action" style="margin-top:auto; align-self:flex-start;">
-                    <span>View on ${formatPlatformName(platform)}</span>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
-                </a>
-            ` : ''}
+            <div class="single-card__footer" style="margin-top:auto; padding-top:12px; border-top:1px solid var(--border-subtle); display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+                ${product.product_url ? `
+                    <a href="${product.product_url}" target="_blank" rel="noopener noreferrer" class="store-row__action" style="align-self:center;" title="View on ${formatPlatformName(platform)}">
+                        <span>View on ${formatPlatformName(platform)}</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+                    </a>
+                ` : '<div></div>'}
+                <button class="btn btn--cart add-to-cart-btn single-card__add-btn" 
+                        data-platform="${platform}"
+                        data-product='${JSON.stringify(product).replace(/'/g, "&#39;")}'>
+                    🛒 Add to Cart
+                </button>
+            </div>
         `;
+
+        // Add to cart click handler for platform-exclusive item
+        const addBtn = card.querySelector('.single-card__add-btn');
+        if (addBtn) {
+            addBtn.addEventListener('click', () => {
+                const prodData = JSON.parse(addBtn.dataset.product);
+                const plat = addBtn.dataset.platform;
+                if (window.CartManager) {
+                    window.CartManager.addItem(prodData, plat);
+                }
+            });
+        }
 
         return card;
     }

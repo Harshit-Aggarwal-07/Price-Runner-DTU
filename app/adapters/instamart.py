@@ -7,7 +7,9 @@ with DTU location cookies, capturing real /api/instamart/search/v2 API data.
 
 from __future__ import annotations
 
+import json
 import logging
+from pathlib import Path
 import re
 import urllib.parse
 from typing import Optional
@@ -43,12 +45,54 @@ class InstamartAdapter(PlatformPort):
     async def _live_search(
         self, query: str, location: Location
     ) -> list[RawListing]:
-        """Attempt live search via Swiggy Instamart's live web interface."""
-        data = await browser_client.fetch_swiggy(query)
-        if not data:
-            raise PlatformError(self.platform_id, "Could not fetch live search results from Swiggy Instamart.")
+        """Attempt live search via Swiggy Instamart's live web interface with fallback to snapshot."""
+        try:
+            data = await browser_client.fetch_swiggy(query)
+            if data and not (isinstance(data, dict) and data.get("statusCode")):
+                listings = self._parse_search_response(data)
+                if listings:
+                    self._save_snapshot(query, listings)
+                    return listings
+            elif isinstance(data, dict) and data.get("statusCode") == 429:
+                logger.warning(f"Swiggy Instamart returned 429 rate limit for query '{query}'. Trying fallback snapshot.")
+        except Exception as e:
+            logger.warning(f"Swiggy Instamart live search error for '{query}': {e}. Trying fallback snapshot.")
 
-        return self._parse_search_response(data)
+        # Resilient fallback to offline snapshot if live scraping is rate limited
+        snapshot = self._load_snapshot(query)
+        if snapshot:
+            logger.info(f"Loaded {len(snapshot)} listings from authentic Instamart snapshot for '{query}'.")
+            return snapshot
+
+        raise PlatformError(
+            self.platform_id,
+            f"Could not fetch live search results from Swiggy Instamart (rate limited)."
+        )
+
+    def _get_snapshot_path(self, query: str) -> Path:
+        clean = re.sub(r"[^a-zA-Z0-9_]", "", query.lower().strip().replace(" ", "_"))
+        return Path(__file__).parent / "snapshots" / f"{clean}.json"
+
+    def _load_snapshot(self, query: str) -> Optional[list[RawListing]]:
+        path = self._get_snapshot_path(query)
+        if not path.exists():
+            return None
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                raw_data = json.load(f)
+            return [RawListing(**item) for item in raw_data]
+        except Exception as e:
+            logger.warning(f"Failed to load snapshot for {query}: {e}")
+            return None
+
+    def _save_snapshot(self, query: str, listings: list[RawListing]) -> None:
+        path = self._get_snapshot_path(query)
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump([item.model_dump() for item in listings], f, indent=2)
+        except Exception as e:
+            logger.debug(f"Could not save snapshot for {query}: {e}")
 
     def _parse_search_response(self, data: dict) -> list[RawListing]:
         """Parse Swiggy Instamart API response into RawListing objects."""

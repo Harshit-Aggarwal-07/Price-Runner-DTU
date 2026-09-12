@@ -34,8 +34,8 @@ def test_lovable_ui_elements_and_filters(page: Page):
     # Verify header campus location badge
     expect(page.locator("#header-location")).to_contain_text("DTU North Campus")
     
-    # Click on quick tag 'Maggi'
-    page.locator('.tag[data-query="maggi"]').click()
+    # Click on quick tag 'milk'
+    page.locator('.tag[data-query="milk"]').click()
     
     # Wait for results
     expect(page.locator("#results-section")).to_be_visible(timeout=10000)

@@ -270,7 +270,16 @@ def _greedy_split(
             for p in active_platforms
         )
         for consolidate_to in active_platforms:
-            consol_total_items = sum(subtotals.values())
+            can_consolidate = all(
+                item.prices.get(consolidate_to) is not None and item.in_stock.get(consolidate_to, True)
+                for item in items
+            )
+            if not can_consolidate:
+                continue
+
+            consol_total_items = sum(
+                item.prices[consolidate_to] * item.quantity for item in items
+            )
             consol_delivery = compute_delivery_cost(consolidate_to, consol_total_items)
             if consol_total_items + consol_delivery < split_total:
                 # Cheaper to consolidate

@@ -16,15 +16,15 @@ def test_search_and_cart_flow(page: Page):
     """Test the search and cart optimization flow."""
     page.goto("http://localhost:8000")
     
-    # Perform search for maggi
-    page.locator("#search-input").fill("maggi")
+    # Perform search for milk
+    page.locator("#search-input").fill("milk")
     page.keyboard.press("Enter")
     
     # Wait for the results section to appear
     expect(page.locator("#results-section")).to_be_visible(timeout=10000)
     
-    # Expect matched items to be populated
-    expect(page.locator(".compare-card").first).to_be_visible()
+    # Expect matched or platform items to be populated
+    expect(page.locator(".compare-card, .single-card").first).to_be_visible()
     
     # Add first item to cart
     first_add_btn = page.locator(".add-to-cart-btn").first

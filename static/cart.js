@@ -58,22 +58,44 @@
     }
 
     // ── Cart CRUD ──
-    function addItem(matchedPair) {
+    function addItem(itemData, platform) {
+        let canonical_name, products, confidence, cheaper_platform, price_diff, isExclusive = false;
+
+        if (itemData.products) {
+            // Matched pair
+            canonical_name = itemData.canonical_name;
+            products = itemData.products;
+            confidence = itemData.confidence || 1.0;
+            cheaper_platform = itemData.cheaper_platform || null;
+            price_diff = itemData.price_diff || 0;
+            isExclusive = false;
+        } else {
+            // Platform-exclusive product
+            canonical_name = itemData.raw_name || itemData.name || 'Exclusive Product';
+            products = { [platform]: itemData };
+            confidence = 1.0;
+            cheaper_platform = platform;
+            price_diff = 0;
+            isExclusive = true;
+        }
+
         // Check if already in cart
         const existingIdx = cartItems.findIndex(
-            item => item.canonical_name === matchedPair.canonical_name
+            item => item.canonical_name === canonical_name
         );
 
         if (existingIdx >= 0) {
             cartItems[existingIdx].quantity += 1;
         } else {
             cartItems.push({
-                id: `cart-${Date.now()}`,
-                canonical_name: matchedPair.canonical_name,
-                products: matchedPair.products,
-                confidence: matchedPair.confidence,
-                cheaper_platform: matchedPair.cheaper_platform,
-                price_diff: matchedPair.price_diff,
+                id: `cart-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+                canonical_name: canonical_name,
+                products: products,
+                confidence: confidence,
+                cheaper_platform: cheaper_platform,
+                price_diff: price_diff,
+                is_exclusive: isExclusive,
+                exclusive_platform: isExclusive ? platform : null,
                 quantity: 1,
             });
         }
@@ -136,12 +158,17 @@
         const platforms = Object.keys(item.products);
         const pricesHtml = platforms.map(pid => {
             const p = item.products[pid];
+            if (!p || typeof p.price !== 'number') return '';
             const isWinner = pid === item.cheaper_platform;
             const color = pid === 'blinkit' ? 'var(--blinkit)' : 'var(--instamart)';
+            const exclusiveTag = item.is_exclusive
+                ? `<span class="badge-tag" style="font-size:0.625rem; padding:1px 5px; margin-left:6px;">${formatPlatformName(pid)} Only</span>`
+                : '';
             return `
                 <span class="cart-item__platform-price">
                     <span style="color:${color}; font-weight:600;">${formatPlatformName(pid)}:</span>
                     <span style="font-weight:700; ${isWinner ? 'color:var(--green)' : ''}">₹${p.price.toFixed(0)}</span>
+                    ${exclusiveTag}
                 </span>
             `;
         }).join('');
@@ -236,6 +263,7 @@
                         Items: ₹${breakdown.items_total.toFixed(0)} · 
                         Delivery: ${breakdown.delivery_cost > 0 ? '₹' + breakdown.delivery_cost.toFixed(0) : 'FREE'}
                         ${breakdown.has_oos_items ? ' · ⚠️ Some items out of stock' : ''}
+                        ${breakdown.item_count < cartItems.length ? ` · ⚠️ Only ${breakdown.item_count}/${cartItems.length} items available` : ''}
                     </div>
                 </div>
             `;

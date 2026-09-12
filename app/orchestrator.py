@@ -138,7 +138,9 @@ class Orchestrator:
             )
 
         # ── Cache Result ──
-        self._cache.set(cache_key, match_result)
+        # Only cache when no platforms failed and we have valid results
+        if not platforms_failed and match_result.matched_pairs:
+            self._cache.set(cache_key, match_result)
 
         return match_result
 

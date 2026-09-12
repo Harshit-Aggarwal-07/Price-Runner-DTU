@@ -1490,6 +1490,22 @@ input, select {
     margin-bottom: 12px;
 }
 
+.single-card__footer {
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.single-card__add-btn {
+    padding: 7px 14px;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+}
+
 /* ═══════════════════════════════════════════
    LOVABLE TRUST & DECISION MODULES
    ═══════════════════════════════════════════ */
