@@ -163,3 +163,4 @@ Tests verify:
 1. **Codebase & Setup**: Documented in this `README.md`.
 2. **One-Page Design Note**: Available in [`design_note.md`](design_note.md).
 3. **Screen Recording**: Unlisted walkthrough link submitted in the Google Form.
+https://drive.google.com/drive/folders/1GToRkfhGvgo3hH1zHPrnnOdw7Ta7A0x9?usp=drive_link
