@@ -156,6 +156,9 @@ class Orchestrator:
         raw_listings = await adapter.search(query, location)
         fetch_time = round(time.monotonic() - start, 3)
 
+        # Filter out out-of-stock items before normalization
+        raw_listings = [r for r in raw_listings if r.in_stock]
+
         # Normalize each listing
         normalized = [normalize(raw) for raw in raw_listings]
 
