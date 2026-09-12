@@ -76,6 +76,19 @@ class InstamartAdapter(PlatformPort):
     def _load_snapshot(self, query: str) -> Optional[list[RawListing]]:
         path = self._get_snapshot_path(query)
         if not path.exists():
+            # Check semantic/keyword aliases to available snapshots
+            q_lower = query.lower()
+            snapshots_dir = Path(__file__).parent / "snapshots"
+            if any(k in q_lower for k in ["biscuit", "cookie", "good day", "bourbon", "parle", "oreo", "cracker", "toast"]):
+                path = snapshots_dir / "biscuit.json"
+            elif any(k in q_lower for k in ["milk", "dahi", "curd", "amul", "dairy", "taaza", "paneer"]):
+                path = snapshots_dir / "milk.json"
+            elif any(k in q_lower for k in ["bread", "loaf", "pav", "bun", "bakery", "atta bread", "wheat bread"]):
+                path = snapshots_dir / "bread.json"
+            elif any(k in q_lower for k in ["maggi", "noodle", "noodles", "yippee", "pasta", "macaroni"]):
+                path = snapshots_dir / "maggi.json"
+
+        if not path.exists():
             return None
         try:
             with open(path, "r", encoding="utf-8") as f:

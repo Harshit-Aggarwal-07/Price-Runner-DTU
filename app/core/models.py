@@ -39,9 +39,13 @@ class WeightInfo(BaseModel):
     is_multipack: bool = False
     pack_count: int = 1       # 4 for "Pack of 4 x 70g"
 
-    def is_compatible(self, other: WeightInfo, tolerance_pct: float = 5.0) -> bool:
-        """Check if two weights are within tolerance (for matching gate)."""
+    def is_compatible(self, other: WeightInfo, tolerance_pct: float = 3.0) -> bool:
+        """Check if two weights have identical units, pack counts, and are within tolerance."""
         if self.base_unit != other.base_unit:
+            return False
+        if self.pack_count != other.pack_count:
+            return False
+        if self.is_multipack != other.is_multipack:
             return False
         if self.base_value_grams == 0 or other.base_value_grams == 0:
             return False

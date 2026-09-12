@@ -14,6 +14,7 @@ from app.config import (
     CONFIDENCE_HIGH_THRESHOLD,
     CONFIDENCE_MEDIUM_THRESHOLD,
     DEFAULT_MATCHING_STRATEGY,
+    WEIGHT_TOLERANCE_PCT,
 )
 from app.core.models import (
     ConfidenceLevel,
@@ -85,6 +86,14 @@ def match_products(
 
         for j, product_b in enumerate(platform_b_products):
             if j in used_b_indices:
+                continue
+
+            # Hard Gate: Incompatible weights, units, or pack counts can NEVER match
+            if product_a.weight is not None and product_b.weight is not None:
+                if not product_a.weight.is_compatible(product_b.weight, WEIGHT_TOLERANCE_PCT):
+                    continue
+            elif (product_a.weight is None) != (product_b.weight is None):
+                # One product has weight and the other does not -> cannot guarantee unit parity
                 continue
 
             # Compute primary strategy score

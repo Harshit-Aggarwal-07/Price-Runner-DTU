@@ -250,18 +250,20 @@ def _extract_weight(name: str) -> Optional[WeightInfo]:
 def _extract_variant(cleaned_name: str) -> Optional[str]:
     """Extract product variant (flavor/type) if recognizable."""
     common_variants = [
-        "masala", "salted", "unsalted", "plain", "classic", "original",
-        "toned", "full cream", "double toned", "skimmed", "slim",
-        "diet", "zero sugar", "zero", "sugar free",
+        "double toned", "full cream", "zero sugar", "sugar free", "cream & onion",
+        "magic masala", "white chocolate", "whole wheat", "atta bread", "white bread",
+        "brown bread", "choco chip", "choco chips", "chocochip", "dark fantasy",
+        "salted", "unsalted", "plain", "classic", "original",
+        "toned", "skimmed", "slim", "diet", "zero",
         "mint", "lemon", "orange", "mango", "strawberry", "chocolate",
-        "vanilla", "butterscotch", "pista", "kesar", "elaichi",
-        "spicy", "hot", "tangy", "sweet", "cream & onion",
-        "magic masala", "tomato", "pudina", "peri peri",
-        "multigrain", "whole wheat", "atta", "maida", "white",
-        "brown", "milk", "dark", "white chocolate",
+        "vanilla", "butterscotch", "pista", "kesar", "elaichi", "cardamom",
+        "cashew", "kaju", "butter", "badam", "almond", "coconut", "ginger", "jeera",
+        "spicy", "hot", "tangy", "sweet", "tomato", "pudina", "peri peri",
+        "multigrain", "atta", "maida", "brown", "white", "milk", "dark", "cow", "buffalo",
+        "sourdough", "focaccia", "garlic",
     ]
     for variant in common_variants:
-        if variant in cleaned_name:
+        if re.search(rf"\b{re.escape(variant)}\b", cleaned_name):
             return variant
     return None
 

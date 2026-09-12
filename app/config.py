@@ -40,9 +40,9 @@ USER_AGENT: str = (
 
 # ── Matching ──
 
-CONFIDENCE_HIGH_THRESHOLD: float = 0.80
-CONFIDENCE_MEDIUM_THRESHOLD: float = 0.50
-WEIGHT_TOLERANCE_PCT: float = 5.0     # ±5% weight difference allowed
+CONFIDENCE_HIGH_THRESHOLD: float = 0.85
+CONFIDENCE_MEDIUM_THRESHOLD: float = 0.70
+WEIGHT_TOLERANCE_PCT: float = 3.0     # ±3% weight difference allowed
 DEFAULT_MATCHING_STRATEGY: str = "hybrid"
 
 
