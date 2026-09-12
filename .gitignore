@@ -1,3 +1,31 @@
+# Environments
+venv/
+env/
+.env
+.venv
 
-# YoYo AI version control directory
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Agent/IDE directories
+.gemini/
 .yoyo/
+.vscode/
+.idea/
+.agent/
+scratch/
+
+# OS & Temp Files
+.DS_Store
+Thumbs.db
+*.log
+*.zip
+*.png
+
+# Test artifacts
+test-results/
+playwright-report/
